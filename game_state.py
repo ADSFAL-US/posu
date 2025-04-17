@@ -4,6 +4,7 @@ import math
 
 class GameState:
     def __init__(self):
+        #self.current_skin = skin_name or "default"
         self.WH = (1920,1080)
         self.approach_circle_surface = pygame.Surface(self.WH, pygame.SRCALPHA)
         self.font = pygame.font.Font(None, 24)  # Для счета

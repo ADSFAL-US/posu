@@ -25,13 +25,16 @@ pygame.font.init()
 
 class MapLoader:
     @staticmethod
-    def process_maps():
-        """Распаковывает новые .osz архивы и удаляет оригиналы"""
+    def process_maps_and_skins():
+        """Обработка .osz и .osk архивов из папки import"""
+        os.makedirs(IMPORT_DIR, exist_ok=True)
         os.makedirs(MAPS_DIR, exist_ok=True)
+        os.makedirs(SKINS_DIR, exist_ok=True)
         
-        for item in os.listdir(MAPS_DIR):
-            item_path = os.path.join(MAPS_DIR, item)
+        for item in os.listdir(IMPORT_DIR):
+            item_path = os.path.join(IMPORT_DIR, item)
             
+            # Обработка карт
             if item.endswith(".osz"):
                 map_name = os.path.splitext(item)[0]
                 extract_path = os.path.join(MAPS_DIR, map_name)
@@ -40,9 +43,22 @@ class MapLoader:
                     with zipfile.ZipFile(item_path, 'r') as zip_ref:
                         zip_ref.extractall(extract_path)
                     os.remove(item_path)
-                    print(f"Распаковано: {map_name}")
+                    print(f"Карта распакована: {map_name}")
                 except (zipfile.BadZipFile, PermissionError) as e:
-                    print(f"Ошибка распаковки {item}: {str(e)}")
+                    print(f"Ошибка распаковки карты {item}: {str(e)}")
+            
+            # Обработка скинов
+            elif item.endswith(".osk"):
+                skin_name = os.path.splitext(item)[0]
+                extract_path = os.path.join(SKINS_DIR, skin_name)
+                
+                try:
+                    with zipfile.ZipFile(item_path, 'r') as zip_ref:
+                        zip_ref.extractall(extract_path)
+                    os.remove(item_path)
+                    print(f"Скин распакован: {skin_name}")
+                except (zipfile.BadZipFile, PermissionError) as e:
+                    print(f"Ошибка распаковки скина {item}: {str(e)}")
 
 class Game:
     def __init__(self):
@@ -64,12 +80,11 @@ class Game:
             self.load_current_map_audio()
         
     def load_maps(self):
-        MapLoader.process_maps()
+        MapLoader.process_maps_and_skins()  # Переименованный метод
         self.maps = [
             d for d in os.listdir(MAPS_DIR)
             if os.path.isdir(os.path.join(MAPS_DIR, d))
         ]
-        # Загружаем аудио первой карты при запуске
         if self.maps:
             self.load_current_map_audio()
             
@@ -158,7 +173,7 @@ class Game:
             print("Нет доступных карт в posu/maps/!")
             return
             
-        map_folder = os.path.join(MAPS_DIR, self.maps[map_index])
+        map_folder = os.path.join(MAPS_DIR, self.maps[self.current_map_index])
         audio_path, hit_objects, difficulty = OsuParser.parse_map(map_folder)
         
         
