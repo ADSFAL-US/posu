@@ -1,5 +1,6 @@
 import pygame
 import math
+from pygame.math import Vector2
 
 
 class GameState:
@@ -150,11 +151,11 @@ class GameState:
         
         # Проверяем пропущенные объекты
         for obj in self.active_objects:
-            if obj['type'] == 'circle' and not obj.get('hit'):
+            if obj['type'] == 'circle' and not obj.get('hit') and not obj.get('missed'):
                 if current_time > obj['start_time'] + self.hit_window_50:
                     self.combo = 0
                     self.hp = max(0, self.hp - 5)
-                    obj['hit'] = True
+                    obj['missed'] = True
                     
         new_objects = [
             obj for obj in self.hit_objects
@@ -169,11 +170,55 @@ class GameState:
             if current_time <= obj['start_time'] + self.hit_window
         ]
 
+
+    def draw_prediction_line(self, screen):
+        current_time = pygame.time.get_ticks() - self.start_time
+        
+        # Найти последний ВИДИМЫЙ объект (с учетом анимации исчезновения)
+        prev_obj = None
+        for obj in reversed(self.hit_objects):
+            obj_end_time = obj['end_time'] + self.animation_duration  # Учитываем анимацию
+            if obj_end_time > current_time and obj['start_time'] <= current_time:
+                prev_obj = obj
+                break
+                
+        # Найти следующий объект, который должен появиться
+        next_obj = None
+        for obj in self.hit_objects:
+            if obj['start_time'] > current_time:
+                next_obj = obj
+                break
+
+        # Рисовать только если оба объекта существуют и предыдущий еще виден
+        if prev_obj and next_obj and (current_time <= prev_obj['end_time'] + self.animation_duration):
+            # Рассчитать прогресс исчезновения линии
+            time_since_end = current_time - prev_obj['end_time']
+            fade_duration = 50  # Время исчезновения линии после ноты
+
+            # Нормализация значений
+            progress = max(0.0, min(1.0, time_since_end / fade_duration))
+            alpha = 255 - int(255 * progress)
+
+            # Параметры линии
+            line_color = (255, 255, 255, alpha)
+            line_width = 3
+            # Отрисовка
+            pygame.draw.line(
+                screen,
+                line_color,
+                (prev_obj['x'], prev_obj['y']),
+                (next_obj['x'], next_obj['y']),
+                line_width
+            )
+
+
     def draw(self, screen):
         screen.fill((0, 0, 0))
         
         # Отрисовка объектов
         current_time = pygame.time.get_ticks() - self.start_time
+        
+        self.draw_prediction_line(screen)
         
         for obj in self.active_objects:
             # Общие параметры для всех объектов

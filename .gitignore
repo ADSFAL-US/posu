@@ -1,3 +1,5 @@
 posu/skins/
 posu/maps/
 posu/import/
+__pycache__/
+tests/__pycache__/
