@@ -125,9 +125,9 @@ class GameState:
         
         # Хит-окно (OD)
 
-        self.hit_window_300 = 80 - 6 * self.overall_difficulty
-        self.hit_window_100 = 140 - 8 * self.overall_difficulty
-        self.hit_window_50 = 200 - 10 * self.overall_difficulty
+        self.hit_window_300 = 160 - 12 * self.overall_difficulty
+        self.hit_window_100 = 280 - 16 * self.overall_difficulty
+        self.hit_window_50 = 400 - 20 * self.overall_difficulty
         
         # Слайдеры
         self.hit_window = self.hit_window_300
@@ -167,8 +167,10 @@ class GameState:
         # Удаление после окончания hit_window
         self.active_objects = [
             obj for obj in self.active_objects
-            if current_time <= obj['start_time'] + self.hit_window
+            if not obj.get('hit') and not obj.get('missed')  # Удаляем обработанные
+            and current_time <= obj['start_time'] + self.hit_window 
         ]
+   
 
 
     def draw_prediction_line(self, screen):
@@ -226,13 +228,9 @@ class GameState:
             total_time = obj['end_time'] - obj['start_time']
             progress = obj_time / total_time if total_time > 0 else 0.0
             
-            #if obj['start_time'] - self.approach_time <= current_time < obj['start_time']:
-            #    self.draw_approach_circle(obj, current_time, screen)
-            #
-            #if current_time >= obj['start_time']:
-            #    self.draw_main_circle(obj, screen)
             
             if obj.get('hit'):
+                print("1")
                 hit_progress = (current_time - obj['hit_time']) / self.hit_animation['circle']['duration']
                 if hit_progress < 1:
                     radius = 30 + self.hit_animation['circle']['max_radius'] * hit_progress

@@ -3,21 +3,21 @@ import math
 import sys
 
 
-
-
 class InputHandler:
     @staticmethod
-    def handle_input(game_state, current_time):
+    def handle_input(events, game_state, current_time):
         mouse_pos = pygame.mouse.get_pos()
         hit_detected = False
         
         # Обрабатываем события, а не состояние кнопки
-        for event in pygame.event.get():
+        
+        for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.exit(0)
                 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
                 mouse_pos = pygame.mouse.get_pos()
                 for obj in game_state.active_objects:
                     if obj.get('hit') or obj.get('missed'):
@@ -29,7 +29,8 @@ class InputHandler:
                         distance = math.hypot(dx, dy)
                         
                         time_diff = abs(current_time - obj['start_time'])
-                        if distance <= game_state.hitcircle_radius:
+                        if distance <= game_state.hitcircle_radius+15:
+                            
                             if time_diff <= game_state.hit_window_300:
                                 game_state.score += 300
                                 game_state.combo += 1

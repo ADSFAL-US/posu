@@ -61,8 +61,8 @@ class OsuParser:
                             if obj_type & 1:  # Circle
                                 hit_objects.append({
                                     'type': 'circle',
-                                    'x': int(int(parts[0]) * 1920 / 512),
-                                    'y': int(int(parts[1]) * 1080 / 384),
+                                    'x': int(int(parts[0]) / 512*1920),
+                                    'y': int(int(parts[1]) / 384*1080),
                                     'start_time': int(parts[2]),
                                     'end_time': int(parts[2]) + 100,
                                     'hit': False,  # Добавляем начальное состояние

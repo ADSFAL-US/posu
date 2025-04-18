@@ -136,7 +136,8 @@ class Game:
         self.current_state = GameStates.PLAYING
             
     def handle_events(self):
-        for event in pygame.event.get():
+        self.events = pygame.event.get()
+        for event in self.events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -204,7 +205,7 @@ class Game:
             
         running = True
         while running:
-            dt = clock.tick(60)
+            dt = clock.tick(120)
             self.handle_events()
             
             if self.current_state == GameStates.MAIN_MENU:
@@ -216,25 +217,27 @@ class Game:
                 # Обновление и отрисовка игрового процесса
                 current_time = pygame.time.get_ticks() - self.game_state.start_time
                 self.game_state.update(current_time)
-                InputHandler.handle_input(self.game_state, current_time)
+                
+                
+                InputHandler.handle_input(self.events, self.game_state, current_time)
                 self.game_state.draw(self.screen)
             
             pygame.display.flip()
             
 if __name__ == "__main__":
     # Запуск тестов
-    tests = unittest.TestLoader().discover('tests')
-    test_result = unittest.TextTestRunner().run(tests)
+    #tests = unittest.TestLoader().discover('tests')
+    #test_result = unittest.TextTestRunner().run(tests)
     
-    if not test_result.wasSuccessful():
-        print("\nТесты не пройдены!")
-        choice = input("Продолжить запуск? (y/n): ")
-        if choice.lower() != 'y':
-            sys.exit()
+    #if not test_result.wasSuccessful():
+    #    print("\nТесты не пройдены!")
+        #choice = input("Продолжить запуск? (y/n): ")
+        #if choice.lower() != 'y':
+        #    sys.exit()
             
     # Запуск игры
     game = Game()
     if game.maps:
-        game.run(0)
+        game.run(map_index=0)
     else:
         print("Поместите .osz файлы в posu/maps/ и перезапустите игру!")
