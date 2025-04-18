@@ -166,10 +166,10 @@ class GameState:
         
         # Удаление после окончания hit_window
         self.active_objects = [
-            obj for obj in self.active_objects
-            if not obj.get('hit') and not obj.get('missed')  # Удаляем обработанные
-            and current_time <= obj['start_time'] + self.hit_window 
-        ]
+        obj for obj in self.active_objects
+        if current_time <= obj['start_time'] + self.hit_window_50
+          ]
+    
    
 
 

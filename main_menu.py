@@ -21,7 +21,7 @@ class MainMenu:
         # Второстепенные кнопки
         self.sub_buttons = [
             {'text': "Играть", 'pos': (0, 0), 'visible': False},
-            {'text': "Настройки", 'pos': (0, 0), 'visible': False},
+            {'text': "Настройки", 'pos': (0, 0), 'visible': False},  # Новая кнопка
             {'text': "Выйти", 'pos': (0, 0), 'visible': False}
         ]
 

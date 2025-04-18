@@ -12,11 +12,13 @@ from game_state import *
 from input_handler import *
 from env import *
 from map_pull import *
+from settings_menu import *
 
 class GameStates(Enum):
     MAIN_MENU = 0
     MAP_SELECT = 1
     PLAYING = 2
+    SETTINGS = 3
 
 # Инициализация Pygame
 pygame.init()
@@ -67,6 +69,7 @@ class Game:
         self.screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
         self.main_menu = MainMenu(*self.screen.get_size())
         self.map_pull = MapPull(*self.screen.get_size())
+        self.settings_menu = SettingsMenu(*self.screen.get_size())
         
         # Инициализация новых атрибутов
         self.current_map_index = 0
@@ -142,11 +145,24 @@ class Game:
                 pygame.quit()
                 sys.exit()
                 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE and self.current_state == GameStates.SETTINGS:
+                    self.settings_menu.close_menu()
+                    
+                
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                if self.current_state == GameStates.SETTINGS:
+                    if pos[0] > self.settings_menu.menu_width:
+                        self.settings_menu.close_menu()
+                
                 if self.current_state == GameStates.MAIN_MENU:
                     result = self.main_menu.handle_click(pos)
-                    if result == "play":
+                    if result == "settings":
+                        self.current_state = GameStates.SETTINGS
+                        self.settings_menu.state = "opening"
+                        self.settings_menu.open_menu()
+                    elif result == "play":
                         # Переходим в меню выбора карт
                         self.current_state = GameStates.MAP_SELECT
                     elif result == "exit":
@@ -163,6 +179,9 @@ class Game:
     def draw_main_menu(self):
         self.screen.fill((0, 0, 0))
         self.main_menu.draw(self.screen)
+        
+    def draw_settings_menu(self):
+        self.settings_menu.draw(self.screen)
 
     def draw_map_select(self):
         self.screen.fill((0, 0, 0))
@@ -206,8 +225,8 @@ class Game:
         running = True
         while running:
             dt = clock.tick(120)
+            current_time = 0
             self.handle_events()
-            
             if self.current_state == GameStates.MAIN_MENU:
                 self.main_menu.update()
                 self.draw_main_menu()
@@ -217,10 +236,15 @@ class Game:
                 # Обновление и отрисовка игрового процесса
                 current_time = pygame.time.get_ticks() - self.game_state.start_time
                 self.game_state.update(current_time)
-                
-                
                 InputHandler.handle_input(self.events, self.game_state, current_time)
                 self.game_state.draw(self.screen)
+            elif self.current_state == GameStates.SETTINGS:
+                self.settings_menu.update()
+                self.draw_settings_menu()
+            if self.current_state == GameStates.SETTINGS and self.settings_menu.state == "closed":
+                self.current_state = GameStates.MAIN_MENU
+                
+                
             
             pygame.display.flip()
             
