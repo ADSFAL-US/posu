@@ -139,6 +139,7 @@ class Game:
         self.current_state = GameStates.PLAYING
             
     def handle_events(self):
+        
         self.events = pygame.event.get()
         for event in self.events:
             if event.type == pygame.QUIT:
@@ -168,18 +169,37 @@ class Game:
                         self.settings_menu.state = "opening"
                         self.settings_menu.open_menu()
                     elif result == "play":
-                        # Переходим в меню выбора карт
                         self.current_state = GameStates.MAP_SELECT
+                        self.map_pull.selected_index = -1
                     elif result == "exit":
                         pygame.quit()
                         sys.exit()
                         
+                
                 elif self.current_state == GameStates.MAP_SELECT:
-                    # Запускаем игру ТОЛЬКО при клике на карту
-                    selected_map = self.map_pull.get_clicked_map(pos)
-                    if selected_map:
-                        self.current_map_index = self.maps.index(selected_map)
-                        self.start_game()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button in (4, 5):  # Колесо мыши
+                            scroll = -1 if event.button == 4 else 1
+                            
+                            self.map_pull.update(scroll)
+                            
+                            print(self.current_map_index)
+                            
+                            self.map_pull.selected_index = self.current_map_index
+                        
+                            continue  # Пропускаем остальную обработку
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button in (0, 1):
+                            pos = pygame.mouse.get_pos()
+                            if self.current_state == GameStates.MAP_SELECT:
+                                selected_map = self.map_pull.get_clicked_map(pos)
+                                if self.maps.index(selected_map) == self.current_map_index:
+                                    self.start_game()
+                                else:
+                                    self.current_map_index = self.maps.index(selected_map)
+                                    
+                        
                     
     def draw_main_menu(self):
         self.screen.fill((0, 0, 0))
