@@ -106,7 +106,7 @@ class Game:
     def start_game(self):
         """Запуск игры с полным сбросом состояния"""
         # Создаем новое состояние игры
-        self.game_state = GameState()
+        self.game_state = GameState(self, self.settings_menu)
         
         # Загружаем данные карты
         map_folder = os.path.join(MAPS_DIR, self.maps[self.current_map_index])
@@ -149,12 +149,17 @@ class Game:
                 if event.key == pygame.K_ESCAPE and self.current_state == GameStates.SETTINGS:
                     self.settings_menu.close_menu()
                     
+            if self.current_state == GameStates.SETTINGS:
+                self.settings_menu.handle_key_event(event)
+                    
                 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 if self.current_state == GameStates.SETTINGS:
                     if pos[0] > self.settings_menu.menu_width:
                         self.settings_menu.close_menu()
+                    else:
+                        self.settings_menu.handle_click(pos)
                 
                 if self.current_state == GameStates.MAIN_MENU:
                     result = self.main_menu.handle_click(pos)
@@ -201,7 +206,7 @@ class Game:
             print("Ошибка загрузки карты!")
             return
         
-        game_state = GameState()
+        game_state = GameState(game, self.settings_menu)
         game_state.ar = difficulty['ar']
         game_state.cs = difficulty['cs']
         game_state.hp_drain_rate = difficulty['hp']
@@ -236,10 +241,11 @@ class Game:
                 # Обновление и отрисовка игрового процесса
                 current_time = pygame.time.get_ticks() - self.game_state.start_time
                 self.game_state.update(current_time)
-                InputHandler.handle_input(self.events, self.game_state, current_time)
+                InputHandler.handle_input(self.events, self.game_state, current_time)  
                 self.game_state.draw(self.screen)
             elif self.current_state == GameStates.SETTINGS:
                 self.settings_menu.update()
+                self.settings_menu.load_skins()
                 self.draw_settings_menu()
             if self.current_state == GameStates.SETTINGS and self.settings_menu.state == "closed":
                 self.current_state = GameStates.MAIN_MENU

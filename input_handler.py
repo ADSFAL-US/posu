@@ -6,8 +6,13 @@ import sys
 class InputHandler:
     @staticmethod
     def handle_input(events, game_state, current_time):
+        if not game_state or not hasattr(game_state, 'active_objects'):
+            return
         mouse_pos = pygame.mouse.get_pos()
         hit_detected = False
+        key_pressed = pygame.key.get_pressed()
+        key1 = pygame.key.key_code(game_state.settings_menu.selected_keys['key1'])
+        key2 = pygame.key.key_code(game_state.settings_menu.selected_keys['key2'])
         
         # 1. Фильтруем ТОЛЬКО активные ноты в пределах хит-окна
         truly_active_objects = [
@@ -22,7 +27,7 @@ class InputHandler:
                 pygame.quit()
                 sys.exit(0)
                 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if key_pressed[key1] or key_pressed[key2]:
                 mouse_pos = pygame.mouse.get_pos()
                 for obj in truly_active_objects:  # 2. Используем отфильтрованный список
                     if obj['type'] == 'circle':

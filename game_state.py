@@ -1,12 +1,16 @@
 import pygame
 import math
 from pygame.math import Vector2
+from settings_menu import *
 
 
 class GameState:
-    def __init__(self):
-        #self.current_skin = skin_name or "default"
+    def __init__(self, game, settings_menu):
+        self.active_objects = []
+        
+        self.game = game
         self.WH = (1920,1080)
+        self.settings_menu = settings_menu
         self.approach_circle_surface = pygame.Surface(self.WH, pygame.SRCALPHA)
         self.font = pygame.font.Font(None, 24)  # Для счета
         self.combo_font = pygame.font.Font(None, 48)  # Для комбо
@@ -15,7 +19,7 @@ class GameState:
 
         #self.hit_window = 1500
         self.hit_objects = []  # Все объекты карты
-        self.active_objects = []  # Объекты в процессе анимации
+          # Объекты в процессе анимации
         self.animation_duration = 500
         self.approach_circle_color = (255, 255, 255)  # Белый цвет
         self.fade_circle_color = (255, 200, 0)        # Желтый для исчезновения
